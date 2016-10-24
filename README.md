@@ -39,7 +39,6 @@ Create a "Source machine" and install a guest operating system to it.
 Create required number of VDI machines. 
 Copy "Source machine's" disk image to "Initial machine's" disk image  ("Copy disk from source" button).
 Create snapshots for all VDI VM's from "Initial machine's" disk image ("Populate machines" button);
-Configure "clients.xml" file, to provide thin clients with it's own VDI VM.
 
 
 ### Dashboard installation
@@ -62,7 +61,6 @@ Create empty database/user on db server.
     cd kvm-vdi
 
 Rename functions/config.php_dist to functions/config.php Edit config.php to fit your needs.  
-Change permissions on tmp/ folder and functions/clients.xml file to give webserver writeable rights.  
 Go to http://yourservename/kvm-vdi  
 If installation is successful, you will be redirected to login page. Default credentials are: admin/password  
 
@@ -98,15 +96,20 @@ If dashboard is accessed from https, you need to add ssl certificates to websock
 
 Make sure, that there is no firewall rules blocking connections from websockify server to hypervisor ports 59xx.  
 Also, if certificates are self-signed, SPICE console will not be available on Mozilla Firefox browser.  
+If you are using HTTPS to serve your dashboard, then you must use SSL-enabled websockets. Please manually edit `spice_html5/run.js`  
+And change line `213` from `'protocol': getURLParameter('protocol') || 'ws',` to `'protocol': getURLParameter('protocol') || 'wss',`  
 You should create client login. `Clients>add client`. Then add client to atleast one VM pool (`Add clients to pool`).  
 If you are using AD/LDAP users, you must create at least one group for that user and add it to pool (`Add AD group`, `Add AD group to pool`).  
-After these steps you should get HTML5 console if you visit http://YOUR_DASHBOARD/kvm-vdi/client_pools.php`  
+After these steps you should get HTML5 console if you visit http://YOUR_DASHBOARD/kvm-vdi/client_index.php`  
 If apache mod_rewrite is enabled, you can access HTML5 console via: http://YOUR_DASHBOARD/kvm-vdi/client`  
 
 
 ### Hypervisor installation
 
 **On Debian based systems:**
+  
+KVM-VDI uses Python version 2. You may experience problems with Python version 3.
+  
 
     apt-get install qemu-kvm libvirt-bin sudo python python-requests virtinst socat libxml-xpath-perl
 
@@ -131,7 +134,8 @@ On dashboard server type:
     cd
     ssh-keygen -t rsa
 
-copy files from /home/VDI/.ssh to /var/hyper_keys folder.
+copy files from /home/VDI/.ssh to /var/hyper_keys folder.  
+Make files in `/var/hyper_keys` readable by webserver.  
 copy rsa.pub file from dashboard /var/hyper_keys folder to each of hypervisors /home/VDI/.ssh/authorized_keys file.
 To check if everything works, from dashboard server type:
 

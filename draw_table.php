@@ -9,7 +9,7 @@ Center of Information Technology Development.
 
 
 Vilnius,Lithuania.
-2016-09-01
+2016-09-07
 */
 include ('functions/config.php');
 require_once('functions/functions.php');
@@ -61,7 +61,7 @@ while ($x<sizeof($sql_reply)){
           <thead>
             <tr>
               <th>#</th>
-	      <th></th>
+              <th></th>
               <th><?php echo _("Machine name");?></th>
               <th><?php echo _("Machine type");?></th>
               <th><?php echo _("Source image");?></th>
@@ -109,36 +109,34 @@ while ($x<sizeof($sql_reply)){
 		$vdi_collapse_button='fa-minus';
 		if ($vms_query[$y]['machine_type']=='initialmachine'){
 		    $VDI_query=get_SQL_array("SELECT vms.id,vms.name,vms.hypervisor,vms.machine_type,vms.source_volume,vms.snapshot,vms.maintenance,vms.filecopy,vms.state,vms.os_type,vms_tmp.name AS sourcename  FROM vms LEFT JOIN vms AS vms_tmp ON vms.source_volume=vms_tmp.id WHERE vms.source_volume='{$vms_query[$y]['id']}' AND vms.machine_type = 'vdimachine' ORDER BY vms.name");
-		    if ($_SESSION['table_section-'.$vms_query[$y]['id']] == 'hide'){
-			$vdi_table_section_collapse='';
-			$vdi_collapse_button='fa-plus';
-			}
+		    if (isset($_SESSION['table_section-'.$vms_query[$y]['id']])){
+			if ($_SESSION['table_section-'.$vms_query[$y]['id']] == 'hide'){
+			    $vdi_table_section_collapse='';
+			    $vdi_collapse_button='fa-plus';
+			    }
+		    }
 		}
+            	echo '<tr class="table-stripe-bottom-line">
+                	  <td colspan="2" class="col-md-1 clickable parent" id="' . $vms_query[$y]['id'] . '" data-toggle="collapse" data-target=".child-' . $vms_query[$y]['id'] . '" >' . ($y+1);
 		if (!empty($VDI_query))
-            	    echo '<tr class="table-stripe-bottom-line">';
-		else
-            	    echo '<tr class="table-stripe-bottom-line">';
-                    echo '<td class="col-md-1 clickable parent" id="' . $vms_query[$y]['id'] . '" data-toggle="collapse" data-target=".child-' . $vms_query[$y]['id'] . '" >' . ($y+1);
-		    if (!empty($VDI_query))
-			echo '<i class="fa ' . $vdi_collapse_button . ' fa-fw" id="childof-' . $vms_query[$y]['id'] . '"></i>';
-		    echo '</td> 
-                    <td class="col-md-1"></td> 
+		    echo '<i class="fa ' . $vdi_collapse_button . ' fa-fw" id="childof-' . $vms_query[$y]['id'] . '"></i>';
+		echo '</td> 
                     <td class="col-md-2"><a data-toggle="modal" href="vm_info.php?vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id']  . '" data-target="#modalWm">' . $vms_query[$y]['name'] . '</a> </td> 
                     <td class="col-md-1">', (!empty($vms_query[$y]['machine_type'])) ? $machine_type[$vms_query[$y]['machine_type']]  : "", '</td>
                     <td class="col-md-1">' . $vms_query[$y]['sourcename'] . '</td>
                     <td class="col-md-1"><input type="checkbox" '. $vms_query[$y]['snapshot'] . " onclick='handleSnapshot(this);' " . 'id="' . $vms_query[$y]['id'] .  '"></td>
                     <td class="col-md-1"><input type="checkbox" '. $vms_query[$y]['maintenance']. " onclick='handleMaintenance(this);' " . 'id="' . $vms_query[$y]['id'] .  '">';
-                    if (is_numeric($vms_query[$y]['filecopy'])){
-                        echo '<div class="progress">
-                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-' . $vms_query[$y]['id'] . '" style="width:100%">
-                                </div>
-                        	  </div>
-                              <script>
-                                countdown("' . $serviceurl . '/progress.php?vm=' . $vms_query[$y]['id']  . '","#progress-' . $vms_query[$y]['id'] . '");
-                              </script>';
+                if (is_numeric($vms_query[$y]['filecopy'])){
+            	    echo '<div class="progress">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-' . $vms_query[$y]['id'] . '" style="width:100%">
+                            </div>
+                    	  </div>
+                          <script>
+                            countdown("' . $serviceurl . '/progress.php?vm=' . $vms_query[$y]['id']  . '","' . $vms_query[$y]['id'] . '");
+                          </script>';
                         }
                         echo  '</td>
-                              <td class="col-md-2">';
+                              <td class="col-md-3">';
                         if ($vms_query[$y]['machine_type']=="initialmachine"){
 			    if ($vms_query[$y]['locked']=='true')
 				$lockstatus='disabled';
@@ -197,14 +195,15 @@ while ($x<sizeof($sql_reply)){
 			    if (!empty($VDI_query))
 				echo '<thead class="vdi-font">
     				<tr class="table-stripe-static child-' . $vms_query[$y]['id'] . ' collapse ' . $vdi_table_section_collapse . '">
-		            	    <th class="table-stripe-clear"></th>
-	    			    <th>#</th>
+				    <th class="table-stripe-clear"></th>
+            			    <th>#</th>
             			    <th>' . _("VDI name") . '</th>
             			    <th>' . _("Machine type") . '</th>
             			    <th>' . _("Source image") . '</th>
             			    <th>' . _("Virt-snapshot") . '</th>
             			    <th>' . _("Maintenance") . '</th>
             			    <th>' . _("Operations") . '</th>
+            			    <th>' . _("OS type") . '</th>
         			</tr>
         			</thead>';
 			    while ($q<sizeof($VDI_query)){
@@ -240,7 +239,7 @@ while ($x<sizeof($sql_reply)){
                     		<td class="col-md-1">' . $VDI_query[$q]['sourcename'] . '</td>
                     		<td class="col-md-1"><input type="checkbox" '. $VDI_query[$q]['snapshot'] . " onclick='handleSnapshot(this);' " . 'id="' . $VDI_query[$q]['id'] .  '"></td>
                     		<td class="col-md-1"><input type="checkbox" '. $VDI_query[$q]['maintenance']. " onclick='handleMaintenance(this);' " . 'id="' . $VDI_query[$q]['id'] .  '"></td>
-				<td class="col-md-2">';
+				<td class="col-md-3">';
 		                echo  '<a href="power.php?action=single&state=up&vm=' . $VDI_query[$q]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover" class="btn ' . $pwr_button . '" aria-label="' . _("Power up") . '" title="' . _("Power up") . '">
                             	    <span class="glyphicon glyphicon-play" aria-hidden="true"></span></a>';
                     		if ($pwr_status=="on"){

@@ -8,7 +8,7 @@ Center of Information Technology Development.
 
 
 Vilnius,Lithuania.
-2016-08-30
+2016-09-13
 */
 include ('functions/config.php');
 require_once('functions/functions.php');
@@ -63,8 +63,9 @@ set_lang();
     </script>
 
     <script>
-	function countdown(filepath,container) {
-	    var $container = $(container);
+	function countdown(filepath,id) {
+        
+	    var $container = $("#progress-"+id);
 	    (function step() {
 		$.get(filepath, function(count){
 		    if (count==0){
@@ -199,16 +200,30 @@ set_lang();
 		<li>
 		    <a href="#" aria-expanded="false"><span class="fa arrow"></span><i class="fa fa-user fa-fw"></i><?php echo _("Clients");?></a>
 		    <ul aria-expanded="false">
-    	    		<li class="nav"><a href="add_client.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-user-plus fa-fw"></i><?php echo _("Add client");?></a></li>
+    	    		<li class="nav"><a href="add_credential.php?credentialtype=client" data-toggle="modal" data-target="#modalWm"><i class="fa fa-user-plus fa-fw"></i><?php echo _("Add client");?></a></li>
+			<li class="nav"><a href="list_credentials.php?credentialtype=client" data-toggle="modal" data-target="#modalWm"><i class="fa fa-recycle fa-fw"></i><?php echo _("Manage clients");?></a></li>
+			<?php
+			if ($LDAP_backend=='activedir'){
+				    echo '<li class="nav-divider"></li>';
+				    echo '<li class="nav"><a href="add_ad_group.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-group fa-fw"></i>' .  _("Add AD group") . '</a></li>';
+				    echo '<li class="nav"><a href="list_credentials.php?credentialtype=adgroup" data-toggle="modal" data-target="#modalWm"><i class="fa fa-recycle fa-fw"></i>' .  _("Manage AD groups") . '</a></li>';
+			}
+			if ($LDAP_backend=='ldap'){
+				    echo '<li class="nav-divider"></li>';
+				    echo '<li class="nav"><a href="add_ad_group.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-group fa-fw"></i>' .  _("Add LDAP attribute") . '</a></li>';
+				    echo '<li class="nav"><a href="list_credentials.php?credentialtype=adgroup" data-toggle="modal" data-target="#modalWm"><i class="fa fa-recycle fa-fw"></i>' .  _("Manage LDAP attributes") . '</a></li>';
+			}
+			?>
 			<li class="nav-divider"></li>
 			<li class="nav"><a href="add_pool.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-cloud fa-fw"></i><?php echo _("Add pool");?></a></li>
+			<li class="nav"><a href="list_credentials.php?credentialtype=pool" data-toggle="modal" data-target="#modalWm"><i class="fa fa-recycle fa-fw"></i><?php echo _("Manage pools");?></a></li>
 			<li class="nav"><a href="manage_vm_pool.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-desktop fa-fw"></i><?php echo _("Add VMs to pool");?></a></li>
-			<li class="nav"><a href="manage_client_pool.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-group fa-fw"></i><?php echo _("Add clients to pool");?></a></li>
-			<?php if ($ad_enabled){
-				    echo '<li class="nav-divider"></li>';
-				    echo '<li class="nav"><a href="add_ad_group.php" data-toggle="modal" data-target="#modalWm"><i class="glyphicon glyphicon-folder-close fa-fw"></i>' .  _("Add AD group") . '</a></li>';
-				    echo '<li class="nav"><a href="manage_client_pool.php?type=ad" data-toggle="modal" data-target="#modalWm"><i class="fa fa-group fa-fw"></i>' .  _("Add AD group to pool") . '</a></li>';
-			}
+			<li class="nav"><a href="manage_client_pool.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-male fa-fw"></i></i><?php echo _("Add clients to pool");?></a></li>
+			<?php 
+				if ($LDAP_backend=='activedir')
+				    echo '<li class="nav"><a href="manage_client_pool.php?type=ad" data-toggle="modal" data-target="#modalWm"><i class="glyphicon glyphicon-user fa-fw"></i>' .  _("Add AD group to pool") . '</a></li>';
+				else if ($LDAP_backend=='ldap')
+				    echo '<li class="nav"><a href="manage_client_pool.php?type=ad" data-toggle="modal" data-target="#modalWm"><i class="glyphicon glyphicon-user fa-fw"></i>' .  _("Add LDAP attribute to pool") . '</a></li>';
 			?>
 		    </ul>
 		</li>
@@ -219,8 +234,8 @@ set_lang();
 			<li class="nav"><a href="add_hypervisor.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-database fa-fw"></i><?php echo _("Add hypervisor");?></a></li>
 	    		<li class="nav"><a href="list_hypervisors.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-cloud fa-fw"></i><?php echo _("Modify hypervisors");?></a></li>
 			<li class="nav-divider"></li>
-			<li class="nav"><a href="add_user.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-user-plus fa-fw"></i><?php echo _("Add administrator");?></a></li>
-			<li class="nav"><a href="list_users.php" data-toggle="modal" data-target="#modalWm"><i class="fa fa-users fa-fw"></i><?php echo _("Modify administrator");?></a></li>
+			<li class="nav"><a href="add_credential.php?credentialtype=user" data-toggle="modal" data-target="#modalWm"><i class="fa fa-user-plus fa-fw"></i><?php echo _("Add administrator");?></a></li>
+			<li class="nav"><a href="list_credentials.php?credentialtype=user" data-toggle="modal" data-target="#modalWm"><i class="fa fa-recycle fa-fw"></i><?php echo _("Manage administrators");?></a></li>
 			<li class="nav-divider"></li>
 			<li class="nav"><a data-target="#modalWm" data-toggle="modal" href="about.php"><i class="fa fa-star-o fa-fw"></i>About</a></li>
 		    </ul>
